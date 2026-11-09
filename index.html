@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Cuestionario Moticar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: hoja de taller en una columna estrecha; barra de secciones fija arriba, una sección cada vez, etiqueta de cinta de carrocero como único detalle */
+:root{
+  color-scheme:light;
+  --bg:#E8ECEE; --surface:#F9FAFA; --ink:#162027; --muted:#55626B; --line:#C8D0D5;
+  --tape:#F0BF2C; --tape-soft:#FBEDBC; --on-tape:#1E1800; --danger:#A8291F;
+  --f-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --f-body:"Barlow","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11171A; --surface:#192126; --ink:#E4E9EC; --muted:#97A3AB; --line:#2D383E;
+  --tape:#E8B826; --tape-soft:#3A3114; --on-tape:#1E1800; --danger:#F08A80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11171A; --surface:#192126; --ink:#E4E9EC; --muted:#97A3AB; --line:#2D383E;
+  --tape:#E8B826; --tape-soft:#3A3114; --on-tape:#1E1800; --danger:#F08A80; color-scheme:dark}
+
+[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
+*:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* Cabecera */
+.head{padding-block:32px 20px;display:flex;flex-direction:column;gap:12px}
+.tape{align-self:flex-start;margin:0;background:var(--tape);color:var(--on-tape);font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:7px 12px 6px;transform:rotate(-1.4deg);box-shadow:0 1px 0 rgba(0,0,0,.08)}
+h1{margin:0;font:700 clamp(36px,8vw,54px)/1 var(--f-display);letter-spacing:.005em;text-wrap:balance}
+.lede{margin:0;max-width:62ch;color:var(--muted);font-size:17px}
+.facts{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px;max-width:62ch}
+.facts li{display:grid;grid-template-columns:92px 1fr;gap:12px;font-size:15px}
+.facts .k{font:500 12px/1.9 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+/* Barra fija */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar-in{padding-block:10px 0}
+.prog{display:flex;align-items:center;gap:12px}
+.track{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--tape);transition:width .3s ease}
+.count{font:500 12px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.chips{position:relative;display:flex;gap:6px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:thin}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;font:500 14px/1 var(--f-body);padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);cursor:pointer}
+.chip .n{font:500 11px var(--f-mono);color:var(--muted)}
+.chip[aria-current="step"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip[aria-current="step"] .n{color:inherit;opacity:.7}
+.chip[data-state="done"]::after,.chip[data-state="partial"]::after{content:"";width:8px;height:8px;border-radius:50%;box-sizing:border-box}
+.chip[data-state="done"]::after{background:var(--tape)}
+.chip[data-state="partial"]::after{border:2px solid var(--tape)}
+.storewarn{margin:0 0 10px;font-size:13px;color:var(--danger)}
+
+/* Secciones */
+main.wrap{padding-block:8px 72px}
+form{margin:0}
+.sec{display:flex;flex-direction:column}
+.eyebrow{margin:24px 0 4px;font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h2{margin:0;font:700 34px/1.05 var(--f-display);text-wrap:balance;outline:none}
+h3{margin:28px 0 4px;font:700 24px/1.1 var(--f-display)}
+.sec-d{margin:8px 0 4px;color:var(--muted);max-width:62ch}
+
+.q{padding-block:20px;border-bottom:1px solid var(--line)}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend,.ql{display:block;padding:0;font-weight:600;font-size:17px;line-height:1.35;margin-bottom:4px}
+.ql.small{font-size:14px;margin-top:20px}
+.tag{display:inline-block;margin-left:8px;font:500 11px/1.6 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap;vertical-align:2px}
+.tag.key{background:var(--tape);color:var(--on-tape);padding:0 6px;border-radius:3px}
+.qh{margin:0 0 10px;font-size:14px;color:var(--muted);max-width:62ch}
+legend + .opts,.ql + .field{margin-top:10px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);cursor:pointer;line-height:1.35;min-width:0}
+.opt input{margin:1px 0 0;width:18px;height:18px;flex:none;accent-color:var(--ink)}
+.opt span{min-width:0;overflow-wrap:anywhere}
+.opt:has(input:checked){background:var(--tape-soft);border-color:var(--tape)}
+.opt:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:2px}
+.opt input:focus-visible{outline:none}
+.field{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.field::placeholder{color:var(--muted);opacity:.8}
+.field:focus-visible{outline:2px solid var(--ink);outline-offset:1px;border-color:var(--ink)}
+textarea.field{min-height:92px;resize:vertical}
+textarea.field.long{min-height:160px}
+.field.other{margin-top:8px}
+input[type="number"].field{max-width:180px}
+
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:28px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 18px/1 var(--f-display);letter-spacing:.03em;text-transform:uppercase;text-decoration:none;padding:12px 18px;border-radius:6px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn.danger{border-color:var(--danger);color:var(--danger)}
+.btn:hover{opacity:.88}
+.nav .primary{margin-left:auto}
+
+/* Revisión */
+.rv-list{display:flex;flex-direction:column;margin-top:16px;border-top:1px solid var(--line)}
+.rv-row{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:12px 2px;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.rv-row:hover .rv-name span:last-child{text-decoration:underline}
+.rv-name{display:flex;gap:10px;align-items:baseline;min-width:0}
+.rv-name .n{font:500 12px var(--f-mono);color:var(--muted)}
+.rv-count{flex:none;font:500 13px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
+.rv-count::before{content:"";width:8px;height:8px;border-radius:50%;box-sizing:border-box;border:2px solid var(--line)}
+.rv-count[data-state="partial"]::before{border-color:var(--tape)}
+.rv-count[data-state="done"]::before{border-color:var(--tape);background:var(--tape)}
+.keymiss{margin:14px 0 0;font-size:15px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.status{min-height:1.5em;margin:10px 0 0;font-size:14px;color:var(--muted)}
+.preview{font:13px/1.5 var(--f-mono);min-height:240px}
+.reset-zone{margin-top:28px;padding-top:16px;border-top:1px solid var(--line)}
+.linkbtn{background:none;border:0;padding:0;font:inherit;font-size:14px;color:var(--danger);text-decoration:underline;cursor:pointer}
+.confirm p{margin:0;font-size:15px}
+
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.sent{margin-top:14px;padding:14px 16px;border:1px solid var(--tape);background:var(--tape-soft);border-radius:6px;display:flex;flex-direction:column;gap:6px}
+.sent p{margin:0}
+.sent .sent-t{font:700 22px/1.2 var(--f-display)}
+.mail{font-family:var(--f-mono);font-size:14px;overflow-wrap:anywhere;user-select:all}
+.btn:disabled{opacity:.6;cursor:progress}
+
+@media (max-width:480px){
+  .facts li{grid-template-columns:1fr;gap:0}
+  h2{font-size:30px}
+  .nav .btn{flex:1 1 auto}
+}
+@media (prefers-reduced-motion: reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="wrap head">
+  <p class="tape">Moticar · Programa de gestión a medida</p>
+  <h1>Lo que necesita Moticar</h1>
+  <p class="lede">Vamos a construir un programa de gestión hecho para vuestro taller. Para eso necesitamos saber cómo trabajáis y qué os hace falta. Cuanto más concretas sean las respuestas, más se parecerá el programa a vuestro día a día.</p>
+  <ul id="intro" class="facts">
+    <li><span class="k">Tiempo</span><span>Unos 30 minutos. Podéis hacerlo en varias veces.</span></li>
+    <li><span class="k">Clave</span><span>Las preguntas marcadas como clave son las que más nos ayudan. El resto, si lo sabéis.</span></li>
+    <li><span class="k">Ejemplos</span><span>Poned ejemplos reales siempre que podáis: nombres de compañías, cómo numeráis, qué sale en una factura.</span></li>
+    <li><span class="k">Guardado</span><span>Lo que rellenáis se guarda en este navegador. Al final nos enviáis las respuestas con un botón.</span></li>
+  </ul>
+</header>
+
+<div class="bar" id="bar">
+  <div class="wrap bar-in">
+    <div class="prog">
+      <div class="track" id="track" role="progressbar" aria-label="Preguntas respondidas" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><div class="fill" id="fill"></div></div>
+      <span class="count" id="count">0 de 0 respondidas</span>
+    </div>
+    <nav class="chips" id="chips" aria-label="Secciones del cuestionario"></nav>
+    <p class="storewarn" id="storewarn" hidden>Este navegador no deja guardar el progreso. Rellenadlo de una vez y enviadlo al terminar.</p>
+  </div>
+</div>
+
+<main class="wrap">
+  <form id="form" novalidate>
+    <section class="sec" id="sec-review" hidden aria-labelledby="h-review">
+      <p class="eyebrow">Último paso</p>
+      <h2 id="h-review" tabindex="-1">Revisar y enviar</h2>
+      <p class="sec-d">Aquí veis cuántas preguntas habéis respondido en cada sección. Tocad una para volver a ella.</p>
+      <div class="rv-list" id="rv-list"></div>
+      <p class="keymiss" id="keymiss"></p>
+
+      <h3>Enviarnos las respuestas</h3>
+      <p class="qh">Pulsad «Enviar respuestas» y nos llegarán por email. Podéis enviarlo aunque quede alguna pregunta sin responder.</p>
+      <div class="hp" aria-hidden="true"><label for="hp-field">No rellenar</label><input type="text" id="hp-field" tabindex="-1" autocomplete="off"></div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="send">Enviar respuestas</button>
+        <button type="button" class="btn" id="copy">Copiar respuestas</button>
+        <a class="btn" id="wa" href="https://wa.me/" target="_blank" rel="noopener" hidden>Enviar por WhatsApp</a>
+      </div>
+      <div class="sent" id="sent" hidden>
+        <p class="sent-t">Respuestas enviadas. ¡Gracias!</p>
+        <p>Si habéis marcado ejemplos para mandarnos (facturas, órdenes, capturas…), enviadlos por WhatsApp o a <span class="mail">pablodesarrolloweb@gmail.com</span>. Si cambiáis algo, podéis volver a enviar el cuestionario.</p>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+
+      <label class="ql small" for="preview">Así quedan vuestras respuestas</label>
+      <textarea class="field preview" id="preview" readonly rows="14"></textarea>
+
+      <div class="reset-zone">
+        <button type="button" class="linkbtn" id="reset">Borrar todas las respuestas</button>
+        <div class="confirm" id="confirm" hidden>
+          <p>Se borrarán todas las respuestas guardadas en este navegador.</p>
+          <div class="actions">
+            <button type="button" class="btn danger" id="reset-yes">Sí, borrar todo</button>
+            <button type="button" class="btn" id="reset-no">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav"><button type="button" class="btn" id="back-last">←</button></div>
+    </section>
+  </form>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var SI = "Sí";
+  var NO_GESTION = "Nosotros, con el programa actual";
+  var S = [
+    { id: "moticar", c: "Moticar", t: "Sobre Moticar", d: "Datos básicos para situarnos.", q: [
+      { id: "contacto", l: "Persona de contacto y cargo", s: "Contacto", type: "text", p: "Ej.: Antonio, gerente" },
+      { id: "telefono", l: "Teléfono", s: "Teléfono", type: "text", it: "tel", ac: "tel" },
+      { id: "email", l: "Email", s: "Email", type: "text", it: "email", ac: "email" },
+      { id: "actividad", l: "¿A qué se dedica el taller?", s: "Actividad", type: "checks", o: ["Chapa", "Pintura", "Mecánica", "Electricidad y electrónica", "Neumáticos", "Lunas", "Vehículos de sustitución o alquiler", "Otro"] },
+      { id: "personas", l: "¿Cuántas personas trabajáis en la oficina y cuántas en el taller?", s: "Personas", type: "text", p: "Ej.: 2 en oficina, 6 en taller" },
+      { id: "sedes", l: "¿Tenéis una sede o varias?", s: "Sedes", type: "radio", o: ["Una", "Varias"] },
+      { id: "or_mes", l: "¿Cuántas órdenes de reparación abrís al mes, más o menos?", s: "OR al mes", type: "radio", o: ["Menos de 50", "Entre 50 y 150", "Entre 150 y 300", "Más de 300"] },
+      { id: "pct_seguro", l: "¿Qué parte del trabajo os llega por aseguradoras?", s: "Trabajo de aseguradoras", type: "radio", o: ["Menos del 25 %", "Entre el 25 y el 50 %", "Entre el 50 y el 75 %", "Más del 75 %"] }
+    ]},
+    { id: "caso", c: "Un caso real", t: "Un coche, de principio a fin", d: "Es la parte que más nos ayuda. Contadlo como se lo contaríais a alguien nuevo en el taller, con todo el detalle que podáis.", q: [
+      { id: "caso_seguro", k: 1, l: "Contadnos paso a paso qué pasa con un coche de seguro, desde que os llama el cliente hasta que cobráis.", s: "Proceso de un coche de seguro", type: "textarea", long: 1, p: "Ej.: llama el cliente → le damos cita → abrimos la orden con matrícula y nº de siniestro → avisamos a la compañía → viene el perito o mandamos fotos → nos autoriza → pedimos recambios → chapa → pintura (el pintor busca el color en el programa de pintura) → montaje → lavado → avisamos al cliente → entrega → factura a la compañía y franquicia al cliente → esperamos el cobro…" },
+      { id: "caso_particular", l: "¿Y con un cliente particular, sin seguro, qué cambia?", s: "Proceso de un cliente particular", type: "textarea" },
+      { id: "cuellos", k: 1, l: "¿En qué momento de ese proceso se pierde más tiempo o hay más errores?", s: "Dónde se pierde tiempo", type: "textarea", p: "Ej.: apuntar la pintura gastada, perseguir al perito, volver a teclear la valoración…" },
+      { id: "papel", l: "¿Qué cosas lleváis todavía en papel, en Excel, en pizarras o de memoria?", s: "Lo que va en papel o Excel", type: "textarea" }
+    ]},
+    { id: "actual", c: "Programa actual", t: "Vuestro programa actual", d: "El de la captura que nos enviasteis. Nos ayuda a saber qué hay que mantener y qué hay que mejorar.", q: [
+      { id: "prog_nombre", l: "¿Cómo se llama el programa que usáis ahora?", s: "Programa actual", type: "text" },
+      { id: "prog_tiempo", l: "¿Cuánto tiempo lleváis con él?", s: "Tiempo usándolo", type: "text" },
+      { id: "prog_bien", l: "¿Qué funciona bien y queréis mantener?", s: "Lo que funciona", type: "textarea" },
+      { id: "prog_mal", k: 1, l: "¿Qué os falla o os hace perder tiempo?", s: "Lo que falla", type: "textarea" },
+      { id: "modulos", k: 1, l: "¿Qué partes del programa usáis de verdad?", h: "Son los apartados de vuestro programa. Marcad solo los que usáis a menudo.", s: "Partes que usan", type: "checks", o: ["Clientes y vehículos", "Taller", "Almacén", "Compras", "Presupuestos", "Órdenes de reparación", "Albaranes de venta", "Facturación", "Tickets", "Previsión de cobros", "Alquiler de vehículos", "Alquileres", "Contabilidad", "Tesorería", "Varias empresas"] },
+      { id: "migrar", l: "¿Qué datos queréis pasar al programa nuevo?", s: "Datos a migrar", type: "checks", o: ["Clientes", "Vehículos", "Histórico de reparaciones", "Facturas antiguas", "Artículos y recambios", "Proveedores", "Nada, empezamos de cero"] },
+      { id: "exporta", l: "¿Sabéis si vuestro programa actual puede exportar datos (a Excel, por ejemplo)?", s: "Exporta datos", type: "radio", o: [SI, "No", "No lo sé"] }
+    ]},
+    { id: "equipos", c: "Equipos", t: "Equipos y personas", d: "Dónde, cómo y quién va a usar el programa.", q: [
+      { id: "nativo", k: 1, l: "Cuando habláis de un programa “nativo”, ¿qué tenéis en mente?", s: "Tipo de programa", type: "radio", o: ["Instalado en los ordenadores (Windows)", "Web que se abre en el navegador", "Nos da igual mientras funcione bien", "Otro"] },
+      { id: "dispositivos", k: 1, l: "¿Desde dónde tiene que poder usarse?", s: "Dispositivos", type: "checks", o: ["Ordenadores de la oficina", "Tablet en el taller", "Móvil", "Desde casa o fuera del taller"] },
+      { id: "puestos", l: "¿Cuántas personas lo usarían a la vez?", s: "Usuarios a la vez", type: "number" },
+      { id: "internet", l: "¿Qué tal es la conexión a internet en el taller?", s: "Internet", type: "radio", o: ["Buena y estable", "A veces falla", "Mala o no hay"] },
+      { id: "roles", k: 1, l: "¿Quién lo va a usar?", s: "Quién lo usa", type: "checks", o: ["Gerencia", "Recepción y administración", "Jefe de taller", "Chapistas", "Pintores", "Mecánicos", "Gestoría o contable externo"] },
+      { id: "permisos", l: "¿Qué tiene que poder ver y hacer cada uno? ¿Hay cosas que no todos deban ver?", s: "Permisos", type: "textarea", p: "Ej.: los operarios solo ven sus órdenes; precios de compra y márgenes solo para gerencia" }
+    ]},
+    { id: "fichas", c: "Fichas", t: "Clientes y vehículos", d: "Qué datos hay que guardar y cómo los buscáis.", q: [
+      { id: "cliente_datos", l: "¿Qué datos necesitáis de cada cliente?", s: "Datos del cliente", type: "checks", o: ["Nombre o razón social", "NIF o CIF", "Dirección", "Teléfono", "Email", "Si es particular, empresa o flota", "Cómo prefiere que le avisemos", "Consentimiento de protección de datos firmado", "Otro"] },
+      { id: "vehiculo_datos", k: 1, l: "¿Qué datos necesitáis de cada vehículo?", s: "Datos del vehículo", type: "checks", o: ["Matrícula", "Bastidor (VIN)", "Marca y modelo", "Versión y motor", "Color y código de color", "Kilómetros", "Fecha de matriculación", "Próxima ITV", "Compañía de seguros y nº de póliza", "Otro"] },
+      { id: "buscar", l: "¿Por qué datos necesitáis buscar rápido?", s: "Búsquedas", type: "checks", o: ["Matrícula", "Nombre o teléfono del cliente", "Nº de siniestro", "Nº de orden o de factura", "Bastidor"] },
+      { id: "historial", l: "Al abrir la ficha de un vehículo, ¿qué queréis ver de un vistazo?", s: "Ficha del vehículo", type: "textarea", p: "Ej.: reparaciones anteriores, facturas, fotos, si tiene algo pendiente de pago…" }
+    ]},
+    { id: "ordenes", c: "Órdenes", falta: 1, t: "Recepción y órdenes de reparación", d: "Desde que entra el coche hasta que se entrega.", q: [
+      { id: "entrada", l: "¿Cómo os llegan los coches?", s: "Entrada de coches", type: "checks", o: ["Con cita previa", "Sin cita", "Encargo de aseguradora", "En grúa", "Flotas o renting", "Otro"] },
+      { id: "citas", l: "¿Cómo gestionáis hoy las citas?", s: "Citas", type: "radio", o: ["En el programa actual", "En una agenda de papel", "En Google Calendar u otra agenda", "No damos cita", "Otro"] },
+      { id: "recepcion", l: "Al recibir un coche, ¿qué queréis dejar registrado?", s: "Datos de recepción", type: "checks", o: ["Matrícula y bastidor", "Kilómetros", "Nivel de combustible", "Daños que ya traía", "Fotos del vehículo", "Objetos que deja el cliente", "Firma del cliente", "Otro"] },
+      { id: "firma", l: "¿Os interesa que el cliente firme en una tablet la entrada y la entrega del coche?", s: "Firma en tablet", type: "radio", o: [SI, "Puede ser", "No"] },
+      { id: "fases", k: 1, l: "¿Por qué fases pasa un coche desde que entra hasta que sale? Ponedlas en orden.", s: "Fases de la reparación", type: "textarea", p: "Ej.: recepción → pendiente de peritar → peritado → esperando recambios → chapa → pintura → montaje → lavado → listo para entregar → entregado" },
+      { id: "operario_ve", l: "¿Qué tiene que ver cada operario en su orden de trabajo?", s: "Lo que ve el operario", type: "textarea", p: "Ej.: qué piezas cambiar o reparar, fotos de los daños, código de color, notas del jefe de taller…" },
+      { id: "horas", l: "¿Controláis las horas que cada operario dedica a cada reparación?", s: "Control de horas", type: "radio", o: ["Sí, con el programa actual", "Sí, a mano o en papel", "No, pero nos interesa", "No hace falta"] },
+      { id: "planning", l: "¿Os serviría ver en una pantalla qué coche está en qué fase y con quién?", s: "Planning del taller", type: "radio", o: ["Sí, mucho", "Estaría bien", "No lo necesitamos"] },
+      { id: "avisos", l: "¿Queréis avisar al cliente automáticamente, por ejemplo cuando el coche está listo?", s: "Avisos al cliente", type: "checks", o: ["Por WhatsApp", "Por SMS", "Por email", "No hace falta"] }
+    ]},
+    { id: "presupuestos", c: "Presupuestos", falta: 1, t: "Presupuestos", d: "Cómo se calcula y se aprueba una reparación.", q: [
+      { id: "presu_como", k: 1, l: "¿Con qué hacéis hoy los presupuestos?", s: "Herramienta de presupuestos", type: "checks", o: ["Con el programa actual", "GT Motive", "Audatex", "A mano o en Excel", "Otro"] },
+      { id: "valoracion_import", l: "¿Queréis que las valoraciones de GT Motive o Audatex entren solas en el programa, sin teclearlas otra vez?", s: "Importar valoraciones", type: "radio", o: ["Sí, es clave", "Estaría bien", "No hace falta"],
+        "if": function (a) { var v = a.presu_como || []; return v.indexOf("GT Motive") > -1 || v.indexOf("Audatex") > -1; } },
+      { id: "presu_lineas", l: "¿Qué lleva una línea de presupuesto?", s: "Líneas del presupuesto", type: "checks", o: ["Piezas con referencia y precio", "Horas de chapa", "Horas de pintura", "Material de pintura", "Horas de mecánica", "Descuentos por línea", "Otro"] },
+      { id: "mano_obra", l: "¿Qué tipos de mano de obra tienen un precio por hora distinto?", s: "Tipos de mano de obra", type: "checks", o: ["Chapa", "Pintura", "Mecánica", "Electricidad", "Un único precio para todo"] },
+      { id: "tarifas", k: 1, l: "¿El precio de la hora cambia según la aseguradora o el cliente?", s: "Tarifas", type: "radio", o: ["Sí, cada compañía tiene su tarifa", "Solo algunos clientes tienen precio especial", "No, siempre es el mismo"] },
+      { id: "presu_movil", l: "¿Os interesa que el cliente pueda aceptar el presupuesto desde el móvil?", s: "Aceptación por móvil", type: "radio", o: [SI, "Puede ser", "No"] }
+    ]},
+    { id: "seguros", c: "Seguros", falta: 1, t: "Aseguradoras y peritos", d: "Cómo trabajáis con las compañías y sus peritos.", q: [
+      { id: "companias", k: 1, l: "¿Con qué compañías trabajáis más?", s: "Compañías principales", type: "textarea", p: "Ej.: Mapfre, Allianz, Mutua Madrileña…" },
+      { id: "num_companias", l: "¿Con cuántas compañías trabajáis en total?", s: "Nº de compañías", type: "radio", o: ["Entre 1 y 3", "Entre 4 y 10", "Más de 10"] },
+      { id: "encargo", l: "¿Cómo os llega el encargo de la aseguradora?", s: "Llegada del encargo", type: "checks", o: ["Por su plataforma web", "Por email", "Por teléfono", "Lo trae el propio cliente", "Otro"] },
+      { id: "plataformas", l: "¿Usáis webs o plataformas de las aseguradoras para recibir encargos o mandar facturas? ¿Cuáles?", s: "Plataformas de aseguradoras", type: "textarea" },
+      { id: "siniestro_datos", k: 1, l: "¿Qué datos necesitáis guardar de cada siniestro?", s: "Datos del siniestro", type: "checks", o: ["Compañía", "Nº de siniestro", "Nº de póliza", "Perito asignado", "Fecha de peritación", "Importe autorizado", "Franquicia", "Ampliaciones", "Vehículo contrario y su compañía", "Otro"] },
+      { id: "peritos", l: "¿Cómo trabajáis con los peritos?", s: "Peritaciones", type: "checks", o: ["Vienen al taller", "Peritación por fotos o vídeo", "Gabinetes periciales externos", "Cada compañía tiene sus peritos fijos"] },
+      { id: "peritos_datos", l: "¿Qué queréis tener guardado de cada perito?", s: "Datos de peritos", type: "checks", o: ["Nombre y teléfono", "Email", "Compañía o gabinete", "Días y horas en que suele venir", "Historial de sus peritaciones"] },
+      { id: "estados_seguro", l: "¿Qué estados de un siniestro queréis poder seguir?", s: "Estados del siniestro", type: "checks", o: ["Pendiente de peritar", "Peritado", "Autorizado", "Ampliación pedida", "Rechazado o en discusión", "Pendiente de cobro"] },
+      { id: "franquicia", l: "¿Os encontráis a menudo con franquicias, en las que una parte la paga el seguro y otra el cliente?", s: "Franquicias", type: "radio", o: ["Sí, a menudo", "A veces", "Casi nunca"] },
+      { id: "factura_seguro", k: 1, l: "¿Cómo facturáis los siniestros?", s: "Facturación de siniestros", type: "checks", o: ["A la compañía", "Al cliente, y él lo reclama al seguro", "Partida entre compañía y cliente", "Depende de la compañía"] },
+      { id: "cobro_seguro", l: "¿Necesitáis ver qué os debe cada aseguradora y desde cuándo?", s: "Deuda por aseguradora", type: "radio", o: ["Sí, es clave", "Estaría bien", "No hace falta"] },
+      { id: "docs_seguro", l: "¿Qué documentos guardáis con cada siniestro?", s: "Documentos del siniestro", type: "checks", o: ["Fotos de antes y después", "Informe pericial", "Parte amistoso", "Facturas", "Otro"] }
+    ]},
+    { id: "pintura", c: "Pintura", falta: 1, t: "Programa de pintura", d: "Es la parte clave para enlazar los dos programas. Si no sabéis alguna respuesta, el distribuidor de pintura os la puede dar.", q: [
+      { id: "marca", k: 1, l: "¿Qué marca de pintura usáis?", s: "Marca de pintura", type: "radio", o: ["PPG", "Glasurit", "R-M", "Standox", "Spies Hecker", "Cromax", "Sikkens", "Lechler", "Otra"] },
+      { id: "prog_pintura", k: 1, l: "¿Cómo se llama el programa de pintura y qué versión tiene?", h: "Suele salir en la pantalla de inicio o en «Acerca de». Si es más fácil, mandadnos una foto de la pantalla por WhatsApp.", s: "Programa y versión", type: "text" },
+      { id: "bascula", l: "¿Qué báscula o equipo de mezcla tenéis?", s: "Báscula", type: "text" },
+      { id: "pintura_pc", k: 1, l: "¿Dónde funciona el programa de pintura?", s: "Dónde funciona", type: "radio", o: ["En un ordenador aparte, en la zona de mezclas", "En el mismo ordenador que el de gestión", "En la nube o en una web", "No lo sé"] },
+      { id: "distribuidor", l: "¿Quién os lo instaló o os da soporte?", h: "Normalmente el distribuidor de pintura. A él le pediremos el acceso a los datos.", s: "Distribuidor", type: "text" },
+      { id: "pintura_objetivo", k: 1, l: "¿Qué queréis conseguir al enlazar los dos programas?", s: "Objetivo del enlace", type: "checks", o: ["Que la orden de reparación aparezca sola en el programa de pintura", "Que la pintura gastada en cada coche vuelva a su orden", "Que la pintura se sume sola a la factura", "Ver el margen real de pintura en cada reparación", "Controlar el stock de pintura", "Otro"] },
+      { id: "pintura_hoy", l: "¿Cómo apuntáis hoy la pintura que se gasta en cada coche?", s: "Cómo se apunta hoy", type: "textarea" },
+      { id: "pintura_cobro", k: 1, l: "¿Cómo cobráis la pintura?", s: "Cobro de la pintura", type: "checks", o: ["Por lo que se gasta de verdad", "Según la valoración del perito", "Precio cerrado", "Depende del cliente o la compañía"] },
+      { id: "pintura_informes", l: "¿El programa de pintura saca informes o exportaciones (Excel, CSV, PDF)?", h: "Si es así, mandadnos uno de ejemplo. Nos dice mucho de cómo enlazarlo.", s: "Informes del programa de pintura", type: "radio", o: [SI, "No", "No lo sé"] }
+    ]},
+    { id: "almacen", c: "Almacén", falta: 1, t: "Almacén y compras", d: "Recambios, materiales y proveedores.", q: [
+      { id: "stock", l: "¿Lleváis control de stock?", s: "Stock", type: "radio", o: ["Sí, de todo", "Solo de algunas cosas (pintura, consumibles…)", "No, pedimos para cada reparación"] },
+      { id: "pedidos", l: "¿Cómo pedís los recambios?", s: "Pedidos de recambios", type: "checks", o: ["Por teléfono", "En la web del proveedor", "Al concesionario de la marca", "Otro"] },
+      { id: "proveedores", l: "¿Cuáles son vuestros proveedores principales?", s: "Proveedores", type: "textarea" },
+      { id: "recambio_or", l: "¿Queréis que cada recambio quede ligado a la orden de reparación para la que se pidió?", s: "Recambio ligado a la OR", type: "radio", o: [SI, "No", "No lo sé"] },
+      { id: "compras_reg", l: "¿Metéis en el programa los albaranes y facturas de los proveedores?", s: "Registro de compras", type: "radio", o: [SI, "No", "Nos gustaría"] }
+    ]},
+    { id: "sustitucion", c: "Sustitución", t: "Vehículos de sustitución y alquileres", d: "En vuestro programa hay dos apartados distintos: «Alquileres de vehículos» y «Alquileres».", q: [
+      { id: "flota", l: "¿Tenéis coches de sustitución o de alquiler?", s: "Coches de sustitución", type: "radio", o: [SI, "No"] },
+      { id: "flota_num", l: "¿Cuántos?", s: "Cuántos", type: "number", "if": function (a) { return a.flota === SI; } },
+      { id: "flota_control", l: "¿Qué necesitáis controlar de ellos?", s: "Control de la flota", type: "checks", o: ["Qué coche tiene cada cliente y hasta cuándo", "Kilómetros y combustible al dejarlo y al devolverlo", "Daños al dejarlo y al devolverlo", "Contrato firmado", "Cobro a la aseguradora o al cliente", "Mantenimiento e ITV"], "if": function (a) { return a.flota === SI; } },
+      { id: "alquileres_uso", l: "¿Para qué usáis el apartado «Alquileres», el que no es de vehículos?", s: "Uso de «Alquileres»", type: "textarea", p: "Ej.: alquiler de herramientas, plazas de garaje… o no lo usamos" }
+    ]},
+    { id: "facturacion", c: "Facturación", falta: 1, t: "Facturación, cobros y contabilidad", d: "Cómo sale el dinero del programa y cómo llega a la gestoría.", q: [
+      { id: "contabilidad", k: 1, l: "¿Quién lleva la contabilidad?", s: "Contabilidad", type: "radio", o: [NO_GESTION, "Una gestoría", "Entre los dos"] },
+      { id: "gestoria_prog", l: "¿Qué programa usa la gestoría?", s: "Programa de la gestoría", type: "text", p: "Ej.: A3, Sage, Contasol, Holded…", "if": function (a) { return !!a.contabilidad && a.contabilidad !== NO_GESTION; } },
+      { id: "gestoria_envio", l: "¿Qué le pasáis a la gestoría y cómo?", s: "Envío a la gestoría", type: "textarea", p: "Ej.: un Excel de facturas cada mes, los PDF por email…", "if": function (a) { return !!a.contabilidad && a.contabilidad !== NO_GESTION; } },
+      { id: "empresas", l: "¿Facturáis con más de una empresa o CIF?", s: "Varias empresas", type: "radio", o: [SI, "No"] },
+      { id: "series", l: "¿Qué tipos de factura usáis?", s: "Tipos de factura", type: "checks", o: ["Facturas normales", "Facturas a aseguradoras", "Tickets o facturas simplificadas", "Facturas rectificativas"] },
+      { id: "numeracion", l: "¿Cómo numeráis ahora las facturas, presupuestos y órdenes?", s: "Numeración", type: "text", p: "Ej.: F-2026/0001, P-0123, OR-4567" },
+      { id: "pagos", l: "¿Cómo os pagan los clientes?", s: "Formas de pago", type: "checks", o: ["Efectivo", "Tarjeta", "Transferencia", "Bizum", "Financiación", "Pago aplazado"] },
+      { id: "prevision", l: "¿Usáis la previsión de cobros?", s: "Previsión de cobros", type: "radio", o: ["Sí, mucho", "A veces", "No"] },
+      { id: "fact_electronica", l: "¿Alguna aseguradora o empresa os pide factura electrónica?", s: "Factura electrónica", type: "radio", o: [SI, "No", "No lo sé"] }
+    ]},
+    { id: "documentos", c: "Documentos", t: "Documentos, informes y avisos", d: "Lo que tiene que sacar el programa y lo que os tiene que contar sin que lo busquéis.", q: [
+      { id: "docs", k: 1, l: "¿Qué documentos tiene que sacar el programa?", s: "Documentos", type: "checks", o: ["Presupuesto", "Orden de reparación", "Hoja de trabajo para el operario", "Resguardo de entrega del vehículo", "Albarán", "Factura", "Factura proforma", "Contrato del vehículo de sustitución", "Recibo de pago", "Otro"] },
+      { id: "docs_envio", l: "¿Cómo se los hacéis llegar al cliente?", s: "Envío de documentos", type: "checks", o: ["Impresos en papel", "PDF por email", "Por WhatsApp", "Firmados en tablet"] },
+      { id: "docs_contenido", l: "¿Hay algo que tenga que salir sí o sí en esos documentos?", s: "Contenido obligatorio", type: "textarea", p: "Ej.: condiciones de garantía, texto legal, datos de la aseguradora, firma del cliente…" },
+      { id: "logo", l: "¿Tenéis logo y colores corporativos?", s: "Logo y colores", type: "radio", o: ["Sí, os los mandamos", "No", "Nos gustaría que nos ayudarais con eso"] },
+      { id: "informes", k: 1, l: "¿Qué listados o informes queréis consultar?", s: "Informes", type: "checks", o: ["Facturación por día, mes o año", "Facturación por aseguradora", "Pendiente de cobro", "Coches en el taller ahora mismo", "Horas por operario", "Rentabilidad de cada reparación", "Consumo y gasto de pintura", "Recambios pendientes de llegar", "Otro"] },
+      { id: "alertas", l: "¿De qué queréis que el programa os avise solo?", s: "Avisos automáticos", type: "checks", o: ["Coche parado demasiados días", "Perito pendiente de venir", "Factura sin cobrar pasado un plazo", "Recambio que no llega", "ITV o revisión próxima de un cliente", "Stock bajo", "Otro"] },
+      { id: "integraciones", l: "¿Qué otras herramientas usáis que deban conectarse con el programa?", s: "Otras herramientas", type: "checks", o: ["WhatsApp", "Google Calendar u otra agenda", "Web con citas online", "Banco", "Datáfono", "Proveedores de recambios online", "Otro"] }
+    ]},
+    { id: "prioridades", c: "Prioridades", t: "Prioridades y siguientes pasos", d: "Lo que no puede faltar y lo que puede esperar.", q: [
+      { id: "top3", k: 1, l: "Si el programa solo pudiera hacer tres cosas el primer día, ¿cuáles serían?", s: "Imprescindible", type: "textarea" },
+      { id: "despues", l: "¿Qué os gustaría tener más adelante?", s: "Para más adelante", type: "textarea" },
+      { id: "ideas", l: "¿Habéis visto algo en otro taller o programa que os gustaría tener?", s: "Ideas", type: "textarea" },
+      { id: "plazo", l: "¿Para cuándo os gustaría tenerlo funcionando?", s: "Plazo", type: "radio", o: ["Lo antes posible", "En unos 3 meses", "En unos 6 meses", "Sin prisa"] },
+      { id: "decide", l: "¿Quién toma la decisión final?", s: "Decide", type: "text" },
+      { id: "pago_tipo", l: "¿Cómo preferís pagarlo?", s: "Forma de pago preferida", type: "radio", o: ["Un pago al principio", "Una cuota mensual", "Una parte al principio y una cuota", "Nos da igual"] },
+      { id: "presupuesto", l: "¿Tenéis un presupuesto orientativo en mente?", h: "Opcional. Nos ayuda a ajustar la propuesta a lo que tenéis pensado.", s: "Presupuesto", type: "radio", o: ["Hasta 5.000 €", "De 5.000 a 10.000 €", "De 10.000 a 20.000 €", "Más de 20.000 €", "Preferimos hablarlo"] },
+      { id: "comentarios", l: "¿Algo más que debamos saber?", s: "Otros comentarios", type: "textarea" }
+    ]},
+    { id: "material", c: "Ejemplos", t: "Ejemplos reales", d: "Con documentos de verdad podemos dejar el programa como lo usáis hoy. Una foto o un PDF vale. Mandádnoslos por WhatsApp o por email a pablodesarrolloweb@gmail.com.", q: [
+      { id: "material", k: 1, l: "¿Qué nos podéis mandar?", s: "Ejemplos que enviarán", type: "checks", o: ["Una factura", "Un presupuesto", "Una orden de reparación", "Una valoración de GT Motive o Audatex", "Un informe del programa de pintura", "Capturas de las pantallas que más usáis", "Vuestro logo", "Vuestras tarifas de mano de obra", "Otro"] }
+    ]}
+  ];
+
+  S.forEach(function (s) {
+    if (s.falta) s.q.push({ id: s.id + "_falta", l: "¿Qué más os haría falta en esta parte del programa?", s: "Más necesidades", type: "textarea", p: "Todo lo que se os ocurra, aunque parezca pequeño." });
+  });
+
+  var KEY = "cuestionario-moticar-v2";
+  var REVIEW = S.length;
+  var QMAP = {};
+  S.forEach(function (s) { s.q.forEach(function (q) { QMAP[q.id] = q; }); });
+
+  var A = {}, step = 0, storageOk = true, booted = false;
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var d = JSON.parse(raw);
+      if (d && typeof d === "object") { A = d.a && typeof d.a === "object" ? d.a : {}; step = Number(d.step) || 0; }
+    }
+  } catch (e) { storageOk = false; }
+  if (step < 0 || step > REVIEW) step = 0;
+
+  var reduceMotion = false;
+  try { reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function isOther(v) { return /^Otr[oa]$/.test(v || ""); }
+  function answered(q) { var v = A[q.id]; return Array.isArray(v) ? v.length > 0 : (typeof v === "string" && v.trim() !== ""); }
+  function visible(q) { return !q["if"] || q["if"](A); }
+
+  var form = $("form"), chips = $("chips"), review = $("sec-review");
+  form.addEventListener("submit", function (e) { e.preventDefault(); });
+
+  function addTags(node, q) {
+    if (q.k) node.appendChild(el("span", "tag key", "Clave"));
+    if (q.type === "checks") node.appendChild(el("span", "tag", "Varias"));
+  }
+
+  function buildQ(q) {
+    var w = el("div", "q"); w.setAttribute("data-q", q.id);
+    var cur = A[q.id];
+    if (q.type === "radio" || q.type === "checks") {
+      var fs = el("fieldset");
+      var lg = el("legend", null, q.l); addTags(lg, q);
+      fs.appendChild(lg);
+      if (q.h) fs.appendChild(el("p", "qh", q.h));
+      var grid = el("div", "opts");
+      q.o.forEach(function (opt, i) {
+        var lab = el("label", "opt");
+        var inp = document.createElement("input");
+        inp.type = q.type === "radio" ? "radio" : "checkbox";
+        inp.name = q.id; inp.value = opt; inp.id = "q-" + q.id + "-" + i;
+        inp.setAttribute("data-qid", q.id);
+        inp.checked = Array.isArray(cur) ? cur.indexOf(opt) > -1 : cur === opt;
+        lab.htmlFor = inp.id;
+        lab.appendChild(inp); lab.appendChild(el("span", null, opt));
+        grid.appendChild(lab);
+      });
+      fs.appendChild(grid);
+      if (q.o.some(isOther)) {
+        var o = document.createElement("input");
+        o.type = "text"; o.className = "field other"; o.id = "q-" + q.id + "-otro";
+        o.setAttribute("data-qid", q.id); o.setAttribute("data-other", "1");
+        o.placeholder = "Decidnos cuál"; o.setAttribute("aria-label", q.l + " (otra respuesta)");
+        o.value = A[q.id + "__otro"] || "";
+        fs.appendChild(o);
+      }
+      w.appendChild(fs);
+    } else {
+      var id = "q-" + q.id;
+      var lab2 = el("label", "ql", q.l); lab2.htmlFor = id; addTags(lab2, q); w.appendChild(lab2);
+      var inp2 = document.createElement(q.type === "textarea" ? "textarea" : "input");
+      if (q.h) { var hp = el("p", "qh", q.h); hp.id = id + "-h"; w.appendChild(hp); inp2.setAttribute("aria-describedby", hp.id); }
+      if (q.type === "textarea") { inp2.rows = q.long ? 6 : 3; if (q.long) inp2.className = "long"; }
+      else if (q.type === "number") { inp2.type = "number"; inp2.min = "0"; inp2.inputMode = "numeric"; }
+      else inp2.type = q.it || "text";
+      inp2.id = id; inp2.classList.add("field"); inp2.setAttribute("data-qid", q.id);
+      if (q.p) inp2.placeholder = q.p;
+      if (q.ac) inp2.autocomplete = q.ac;
+      inp2.value = typeof cur === "string" ? cur : "";
+      w.appendChild(inp2);
+    }
+    return w;
+  }
+
+  S.forEach(function (s, i) {
+    var sec = el("section", "sec"); sec.id = "sec-" + s.id; sec.hidden = true;
+    sec.setAttribute("aria-labelledby", "h-" + s.id);
+    sec.appendChild(el("p", "eyebrow", "Sección " + pad(i + 1) + " de " + S.length));
+    var h = el("h2", null, s.t); h.id = "h-" + s.id; h.tabIndex = -1; sec.appendChild(h);
+    if (s.d) sec.appendChild(el("p", "sec-d", s.d));
+    s.q.forEach(function (q) { sec.appendChild(buildQ(q)); });
+    var nav = el("div", "nav");
+    if (i > 0) {
+      var pb = el("button", "btn", "← " + S[i - 1].c); pb.type = "button";
+      pb.addEventListener("click", function () { goTo(i - 1); });
+      nav.appendChild(pb);
+    }
+    var nb = el("button", "btn primary", i < S.length - 1 ? "Siguiente: " + S[i + 1].c + " →" : "Revisar y enviar →");
+    nb.type = "button";
+    nb.addEventListener("click", function () { goTo(i + 1); });
+    nav.appendChild(nb);
+    sec.appendChild(nav);
+    form.insertBefore(sec, review);
+  });
+  $("back-last").textContent = "← " + S[REVIEW - 1].c;
+  $("back-last").addEventListener("click", function () { goTo(REVIEW - 1); });
+
+  var chipEls = [];
+  S.map(function (s) { return s.c; }).concat(["Enviar"]).forEach(function (name, i) {
+    var b = el("button", "chip"); b.type = "button";
+    if (i < S.length) b.appendChild(el("span", "n", pad(i + 1)));
+    b.appendChild(el("span", null, name));
+    b.addEventListener("click", function () { goTo(i); });
+    chips.appendChild(b); chipEls.push(b);
+  });
+
+  function syncOthers() {
+    var list = form.querySelectorAll("input[data-other]");
+    for (var k = 0; k < list.length; k++) {
+      var o = list[k], v = A[o.getAttribute("data-qid")];
+      o.hidden = !(Array.isArray(v) ? v.some(isOther) : isOther(v));
+    }
+  }
+
+  function refresh() {
+    var tot = 0, ans = 0;
+    S.forEach(function (s, i) {
+      var t = 0, a = 0, km = 0;
+      s.q.forEach(function (q) {
+        var w = form.querySelector('[data-q="' + q.id + '"]');
+        var v = visible(q);
+        if (w) w.hidden = !v;
+        if (!v) return;
+        t++;
+        if (answered(q)) a++; else if (q.k) km++;
+      });
+      s._t = t; s._a = a; s._km = km; tot += t; ans += a;
+      chipEls[i].setAttribute("data-state", a === 0 ? "" : (a === t ? "done" : "partial"));
+    });
+    $("fill").style.width = (tot ? (ans / tot) * 100 : 0) + "%";
+    $("count").textContent = ans + " de " + tot + " respondidas";
+    var tr = $("track"); tr.setAttribute("aria-valuemax", String(tot)); tr.setAttribute("aria-valuenow", String(ans));
+    syncOthers();
+    if (step === REVIEW) renderReview();
+  }
+
+  var saveTimer = null;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try { localStorage.setItem(KEY, JSON.stringify({ a: A, step: step })); storageOk = true; }
+      catch (e) { storageOk = false; }
+      $("storewarn").hidden = storageOk;
+    }, 300);
+  }
+
+  function onInput(e) {
+    var t = e.target;
+    var qid = t && t.getAttribute && t.getAttribute("data-qid");
+    if (!qid || !QMAP[qid]) return;
+    var q = QMAP[qid];
+    if (t.hasAttribute("data-other")) A[qid + "__otro"] = t.value;
+    else if (q.type === "checks") {
+      var sel = form.querySelectorAll('input[name="' + qid + '"]:checked'), out = [];
+      for (var k = 0; k < sel.length; k++) out.push(sel[k].value);
+      A[qid] = out;
+    } else A[qid] = t.value;
+    refresh(); save();
+    if (e.type === "change" && (t.type === "checkbox" || t.type === "radio") && t.checked && isOther(t.value)) {
+      var o = $("q-" + qid + "-otro"); if (o) o.focus();
+    }
+  }
+  form.addEventListener("input", onInput);
+  form.addEventListener("change", onInput);
+
+  function goTo(i) {
+    step = i;
+    var secs = form.querySelectorAll(".sec");
+    for (var k = 0; k < secs.length; k++) secs[k].hidden = k !== i;
+    chipEls.forEach(function (c, k) { if (k === i) c.setAttribute("aria-current", "step"); else c.removeAttribute("aria-current"); });
+    $("intro").hidden = i !== 0;
+    if (i === REVIEW) renderReview();
+    save();
+    var c = chipEls[i];
+    try { chips.scrollTo({ left: Math.max(0, c.offsetLeft - 16), behavior: reduceMotion ? "auto" : "smooth" }); } catch (e) { chips.scrollLeft = Math.max(0, c.offsetLeft - 16); }
+    if (booted) {
+      var top = form.getBoundingClientRect().top + window.pageYOffset - $("bar").offsetHeight - 8;
+      if (window.pageYOffset > top || i === 0) {
+        try { window.scrollTo({ top: i === 0 ? 0 : top, behavior: reduceMotion ? "auto" : "smooth" }); } catch (e) { window.scrollTo(0, i === 0 ? 0 : top); }
+      }
+      var h = secs[i] && secs[i].querySelector("h2");
+      if (h) { try { h.focus({ preventScroll: true }); } catch (e) {} }
+    }
+  }
+
+  function fmt(q) {
+    var v = A[q.id], otro = (A[q.id + "__otro"] || "").trim();
+    if (Array.isArray(v)) return v.map(function (x) { return isOther(x) && otro ? x + ": " + otro : x; }).join(", ");
+    v = (v || "").trim();
+    return isOther(v) && otro ? v + ": " + otro : v;
+  }
+
+  function buildText(wa) {
+    var out = [];
+    var h1 = function (t) { out.push(wa ? "*" + t + "*" : "# " + t); };
+    var h2 = function (t) { out.push(""); out.push(wa ? "*" + t + "*" : "## " + t); };
+    var item = function (label, v) {
+      var bullet = wa ? "• " + label + ":" : "- **" + label + ":**";
+      if (v.indexOf("\n") > -1) {
+        out.push(bullet);
+        v.split("\n").forEach(function (l) { if (l.trim()) out.push("  " + l.trim()); });
+      } else out.push(bullet + " " + v);
+    };
+    h1("Cuestionario Moticar: necesidades para el programa de gestión");
+    out.push("Fecha: " + new Date().toLocaleDateString("es-ES"));
+    var any = false, missing = [];
+    S.forEach(function (s, i) {
+      var qs = s.q.filter(function (q) { return visible(q); });
+      qs.forEach(function (q) { if (q.k && !answered(q)) missing.push(s.t + " → " + q.s); });
+      var done = qs.filter(answered);
+      if (!done.length) return;
+      any = true;
+      h2((i + 1) + ". " + s.t);
+      done.forEach(function (q) { item(q.s, fmt(q)); });
+    });
+    if (!any) { out.push(""); out.push("(Todavía no hay respuestas)"); }
+    if (missing.length) {
+      h2("Preguntas clave sin responder");
+      missing.forEach(function (m) { out.push((wa ? "• " : "- ") + m); });
+    }
+    return out.join("\n");
+  }
+
+  function renderReview() {
+    var list = $("rv-list"); list.textContent = "";
+    var km = 0, where = [];
+    S.forEach(function (s, i) {
+      var b = el("button", "rv-row"); b.type = "button";
+      var left = el("span", "rv-name"); left.appendChild(el("span", "n", pad(i + 1))); left.appendChild(el("span", null, s.t));
+      var right = el("span", "rv-count", s._a + " de " + s._t);
+      right.setAttribute("data-state", s._a === 0 ? "" : (s._a === s._t ? "done" : "partial"));
+      b.appendChild(left); b.appendChild(right);
+      b.addEventListener("click", function () { goTo(i); });
+      list.appendChild(b);
+      if (s._km) { km += s._km; where.push(s.c); }
+    });
+    $("keymiss").textContent = km
+      ? "Os quedan " + km + (km === 1 ? " pregunta clave" : " preguntas clave") + " sin responder, en: " + where.join(", ") + "."
+      : "Habéis respondido todas las preguntas clave.";
+    $("preview").value = buildText(false);
+    $("wa").href = "https://wa.me/?text=" + encodeURIComponent(buildText(true));
+  }
+
+  function setStatus(t) { $("status").textContent = t; }
+
+  $("copy").addEventListener("click", function () {
+    var txt = buildText(false), pv = $("preview");
+    pv.value = txt;
+    var fallback = function () {
+      pv.focus(); pv.select();
+      setStatus("Las respuestas están seleccionadas abajo. Copiadlas con el menú del móvil o con Ctrl+C.");
+    };
+    try {
+      navigator.clipboard.writeText(txt).then(function () {
+        setStatus("Respuestas copiadas. Pegadlas en un WhatsApp o en un email para enviárnoslas.");
+      }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  var ENDPOINT = "https://formsubmit.co/ajax/pablodesarrolloweb@gmail.com";
+
+  function keyMissing() {
+    var m = [];
+    S.forEach(function (s) { s.q.forEach(function (q) { if (q.k && visible(q) && !answered(q)) m.push(s.t + " → " + q.s); }); });
+    return m;
+  }
+
+  function buildFields() {
+    var f = {};
+    f._subject = "Cuestionario Moticar · respuestas" + (A.contacto && A.contacto.trim() ? " de " + A.contacto.trim() : "");
+    f._template = "table";
+    f._captcha = "false";
+    if (A.email && /^\S+@\S+\.\S+$/.test(A.email.trim())) f.email = A.email.trim();
+    S.forEach(function (s, i) {
+      s.q.forEach(function (q) {
+        if (q.id === "email" || !visible(q) || !answered(q)) return;
+        f[pad(i + 1) + " " + s.c + " · " + q.s] = fmt(q);
+      });
+    });
+    var miss = keyMissing();
+    if (miss.length) f["Preguntas clave sin responder"] = miss.join("; ");
+    f["Todas las respuestas (texto para Claude)"] = buildText(false);
+    return f;
+  }
+
+  function showSent() {
+    $("sent").hidden = false; $("wa").hidden = true; setStatus("");
+  }
+  function sendFailed() {
+    $("wa").hidden = false;
+    setStatus("No se han podido enviar ahora mismo. Probad otra vez en un momento, o enviadlas por WhatsApp o copiadlas en un email.");
+  }
+
+  var sending = false;
+  $("send").addEventListener("click", function () {
+    if (sending) return;
+    if ($("hp-field").value) { showSent(); return; }
+    sending = true;
+    var btn = $("send");
+    btn.disabled = true; btn.textContent = "Enviando…"; setStatus(""); $("sent").hidden = true;
+    var done = function () { sending = false; btn.disabled = false; btn.textContent = "Enviar respuestas"; };
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(buildFields())
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j || {} }; });
+    }).then(function (res) {
+      var ok = res.ok && (res.j.success === true || res.j.success === "true" || /activat/i.test(res.j.message || ""));
+      if (ok) showSent(); else sendFailed();
+      done();
+    }, function () { sendFailed(); done(); });
+  });
+
+  $("reset").addEventListener("click", function () { $("confirm").hidden = false; $("reset").hidden = true; });
+  $("reset-no").addEventListener("click", function () { $("confirm").hidden = true; $("reset").hidden = false; });
+  $("reset-yes").addEventListener("click", function () {
+    A = {}; form.reset();
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    $("confirm").hidden = true; $("reset").hidden = false; setStatus("");
+    refresh(); goTo(0);
+  });
+
+  $("storewarn").hidden = storageOk;
+  refresh();
+  goTo(step);
+  booted = true;
+})();
+</script>
+</body>
+</html>
